@@ -164,6 +164,22 @@ contract CropTokenFactory is Ownable, ReentrancyGuard {
     }
 }
 
+    /**
+     * Helper getters to be consumed by other contracts
+     */
+    function getCropTokenAddress(uint256 cropId) external view returns (address) {
+        return crops[cropId].tokenAddress;
+    }
+
+    function isCropVerified(uint256 cropId) external view returns (bool) {
+        return crops[cropId].isVerified;
+    }
+
+    function getCropOwner(uint256 cropId) external view returns (address) {
+        return crops[cropId].farmer;
+    }
+
+
 /**
  * @title CropToken
  * @dev Individual ERC20 token representing kilograms of a specific crop
