@@ -1,1 +1,47 @@
-
+### 2. package.json (Root)
+```json
+{
+  "name": "croptoken",
+  "version": "1.0.0",
+  "description": "Tokenizing Africa's Agriculture on Hedera",
+  "main": "index.js",
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "deploy:testnet": "npx hardhat run scripts/deploy.js --network hedera-testnet",
+    "deploy:mainnet": "npx hardhat run scripts/deploy.js --network hedera-mainnet",
+    "verify": "npx hardhat verify",
+    "frontend": "cd frontend && npm start",
+    "backend": "cd backend && npm start",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "setup": "node scripts/setup.js"
+  },
+  "keywords": [
+    "hedera",
+    "blockchain", 
+    "agriculture",
+    "tokenization",
+    "africa",
+    "defi",
+    "rwa"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/croptoken.git"
+  },
+  "devDependencies": {
+    "@hashgraph/sdk": "^2.49.2",
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@nomiclabs/hardhat-waffle": "^2.0.6",
+    "hardhat": "^2.19.4",
+    "chai": "^4.3.10",
+    "ethers": "^5.7.2",
+    "dotenv": "^16.3.1",
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.3"
+  }
+}
