@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ethers } from 'ethers';
 import './App.css';
+
+// Custom Hook
+import useHashConnect from './hooks/useHashConnect';
 
 // Components
 import Navbar from './components/Navbar';
@@ -10,95 +12,91 @@ import Marketplace from './pages/Marketplace';
 import Financing from './pages/Financing';
 import MyFarm from './pages/MyFarm';
 
-// Contract ABIs and addresses
-import CropTokenFactoryABI from './contracts/CropTokenFactory.json';
-import CropMarketplaceABI from './contracts/CropMarketplace.json';
-import CropFinancingABI from './contracts/CropFinancing.json';
-
+// Contract addresses (from deployment)
 const CONTRACT_ADDRESSES = {
-  cropFactory: process.env.REACT_APP_CROP_FACTORY_ADDRESS,
-  marketplace: process.env.REACT_APP_MARKETPLACE_ADDRESS,
-  financing: process.env.REACT_APP_FINANCING_ADDRESS
+  cropFactory: process.env.REACT_APP_CROP_FACTORY_ADDRESS || '0.0.123456',
+  marketplace: process.env.REACT_APP_MARKETPLACE_ADDRESS || '0.0.123457',
+  financing: process.env.REACT_APP_FINANCING_ADDRESS || '0.0.123458'
 };
 
 function App() {
-  const [account, setAccount] = useState('');
-  const [provider, setProvider] = useState(null);
-  const [contracts, setContracts] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
+  const {
+    hashConnect,
+    account,
+    isConnected,
+    isLoading,
+    network,
+    connectWallet,
+    disconnectWallet,
+    executeContract,
+    queryContract
+  } = useHashConnect();
 
-  useEffect(() => {
-    checkWalletConnection();
-  }, []);
+  const [contracts, setContracts] = useState(CONTRACT_ADDRESSES);
 
-  const checkWalletConnection = async () => {
-    if (window.ethereum) {
-      try {
-        const accounts = await window.ethereum.request({ 
-          method: 'eth_accounts' 
-        });
-        if (accounts.length > 0) {
-          await connectWallet();
-        }
-      } catch (error) {
-        console.error('Error checking wallet connection:', error);
-      }
-    }
-  };
-
-  const connectWallet = async () => {
-    if (!window.ethereum) {
-      alert('Please install MetaMask or HashPack wallet!');
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      
-      // Request account access
-      const accounts = await window.ethereum.request({
-        method: 'eth_requestAccounts',
-      });
-
-      // Create provider and signer
-      const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = web3Provider.getSigner();
-
-      // Initialize contracts
-      const cropFactory = new ethers.Contract(
-        CONTRACT_ADDRESSES.cropFactory,
-        CropTokenFactoryABI.abi,
-        signer
+  // Contract interaction helpers
+  const contractHelpers = {
+    // CropTokenFactory functions
+    tokenizeCrop: async (cropType, expectedYield, harvestDate, location, ipfsHash, pricePerKg) => {
+      return await executeContract(
+        contracts.cropFactory,
+        'tokenizeCrop',
+        [cropType, expectedYield, harvestDate, location, ipfsHash, pricePerKg]
       );
+    },
 
-      const marketplace = new ethers.Contract(
-        CONTRACT_ADDRESSES.marketplace,
-        CropMarketplaceABI.abi,
-        signer
+    // Marketplace functions
+    createListing: async (cropId, pricePerToken, tokensToSell) => {
+      return await executeContract(
+        contracts.marketplace,
+        'createListing',
+        [cropId, pricePerToken, tokensToSell]
       );
+    },
 
-      const financing = new ethers.Contract(
-        CONTRACT_ADDRESSES.financing,
-        CropFinancingABI.abi,
-        signer
+    buyTokens: async (listingId, quantity, totalPrice) => {
+      return await executeContract(
+        contracts.marketplace,
+        'buyTokens',
+        [listingId, quantity],
+        totalPrice
       );
+    },
 
-      setAccount(accounts[0]);
-      setProvider(web3Provider);
-      setContracts({ cropFactory, marketplace, financing });
+    // Financing functions
+    createCampaign: async (targetAmount, expectedReturn, deadline, description) => {
+      return await executeContract(
+        contracts.financing,
+        'createCampaign',
+        [targetAmount, expectedReturn, deadline, description]
+      );
+    },
 
-    } catch (error) {
-      console.error('Error connecting wallet:', error);
-      alert('Failed to connect wallet. Please try again.');
-    } finally {
-      setIsLoading(false);
+    investInCampaign: async (campaignId, investmentAmount) => {
+      return await executeContract(
+        contracts.financing,
+        'invest',
+        [campaignId],
+        investmentAmount
+      );
+    },
+
+    // Query functions
+    getCrop: async (cropId) => {
+      return await queryContract(
+        contracts.cropFactory,
+        'crops',
+        [cropId]
+      );
+    },
+
+    getActiveCampaigns: async () => {
+      return await queryContract(
+        contracts.financing,
+        'getActiveCampaigns',
+        []
+      );
     }
-  };
-
-  const disconnectWallet = () => {
-    setAccount('');
-    setProvider(null);
-    setContracts({});
   };
 
   return (
@@ -106,6 +104,8 @@ function App() {
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-orange-50">
         <Navbar 
           account={account}
+          isConnected={isConnected}
+          network={network}
           onConnectWallet={connectWallet}
           onDisconnectWallet={disconnectWallet}
           isLoading={isLoading}
@@ -118,8 +118,9 @@ function App() {
               element={
                 <Dashboard 
                   account={account}
-                  contracts={contracts}
-                  provider={provider}
+                  isConnected={isConnected}
+                  contracts={contractHelpers}
+                  network={network}
                 />
               } 
             />
@@ -128,8 +129,9 @@ function App() {
               element={
                 <Marketplace 
                   account={account}
-                  contracts={contracts}
-                  provider={provider}
+                  isConnected={isConnected}
+                  contracts={contractHelpers}
+                  network={network}
                 />
               } 
             />
@@ -138,8 +140,9 @@ function App() {
               element={
                 <Financing 
                   account={account}
-                  contracts={contracts}
-                  provider={provider}
+                  isConnected={isConnected}
+                  contracts={contractHelpers}
+                  network={network}
                 />
               } 
             />
@@ -148,13 +151,27 @@ function App() {
               element={
                 <MyFarm 
                   account={account}
-                  contracts={contracts}
-                  provider={provider}
+                  isConnected={isConnected}
+                  contracts={contractHelpers}
+                  network={network}
                 />
               } 
             />
           </Routes>
         </main>
+
+        {/* Network Indicator */}
+        {isConnected && (
+          <div className="fixed bottom-4 right-4 z-50">
+            <div className={`px-3 py-2 rounded-lg text-sm font-medium ${
+              network === 'mainnet' 
+                ? 'bg-green-500 text-white' 
+                : 'bg-yellow-500 text-black'
+            }`}>
+              {network === 'mainnet' ? '🟢 Mainnet' : '🟡 Testnet'}
+            </div>
+          </div>
+        )}
       </div>
     </Router>
   );
