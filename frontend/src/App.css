@@ -1,0 +1,62 @@
+.App {
+  text-align: center;
+}
+
+.App-header {
+  background: linear-gradient(135deg, var(--crop-green) 0%, var(--crop-gold) 100%);
+  padding: 20px;
+  color: white;
+}
+
+.App-link {
+  color: var(--crop-blue);
+}
+
+/* Navigation active states */
+.nav-link-active {
+  @apply bg-crop-green text-white;
+}
+
+.nav-link-inactive {
+  @apply text-gray-600 hover:text-crop-green hover:bg-green-50;
+}
+
+/* Wallet connection states */
+.wallet-connected {
+  @apply bg-green-50 border border-green-200 text-green-800;
+}
+
+.wallet-disconnected {
+  @apply bg-red-50 border border-red-200 text-red-800;
+}
+
+/* Loading states */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* Toast notifications */
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  max-width: 400px;
+}
+
+.toast-success {
+  @apply alert-success;
+}
+
+.toast-error {
+  @apply alert-error;
+}
