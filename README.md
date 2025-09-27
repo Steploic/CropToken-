@@ -196,11 +196,11 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) for deta
 
 ## 👨‍💻 Team
 
-Built with ❤️ by **[Your Name]** for Hedera Africa Hackathon 2025
+Built with ❤️ by **Steploic PETNGA NJEMFA** for Hedera Africa Hackathon 2025
 
-- **GitHub**: [github.com/yourusername](https://github.com/yourusername)
-- **LinkedIn**: [linkedin.com/in/yourprofile](https://linkedin.com/in/yourprofile)
-- **Twitter**: [@yourhandle](https://twitter.com/yourhandle)
+- **GitHub**: [https://github.com/Steploic/](https://github.com/Steploic/)
+- **LinkedIn**: [https://www.linkedin.com/in/steploic-petnga-njemfa-461950254/](https://www.linkedin.com/in/steploic-petnga-njemfa-461950254/)
+- **Twitter**: [@steploic](https://x.com/steploic)
 
 ---
 
